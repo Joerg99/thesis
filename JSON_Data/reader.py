@@ -83,11 +83,12 @@ def xml_to_string():
 #dta_kaputt 
 def beautifulsoup_for__kaputt():
     # for files in kaputt
-    folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/__kaputt/'
+    folder = '/home/joerg/workspace/thesis/gute_Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/__kaputt/'
+    #folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/__kaputt/'
     poems = []
     for file in os.listdir(folder):
         g_id = file[:8]
-        if file.endswith('.xml'):
+        if file.endswith('s40_TEI-P5.xml'):
             filename = folder+file
             with open(filename, 'r', encoding='utf-8') as file:
                 soup = BeautifulSoup(file)
@@ -111,7 +112,7 @@ def beautifulsoup_for__kaputt():
                 for i in range(len(verses)):
                     poems.append('{"s": '+ '"'+verses[i]+'", '+ '"rhyme": '+ '"'+rhymes[i]+'", '+'"g_id": '+ '"'+str(g_id)+ '"'+'}')
  
-    with open("dta_gold_kaputt_bs4.ndjson", 'w') as file:
+    with open("dta_gold_kaputt_bs4_linuxtest.ndjson", 'w') as file:
             for line in poems:
                 try:
                     file.write("%s\n" %  line)
@@ -145,7 +146,6 @@ def regex_rap():
 
 # rap, anti-k
 def beautifulsoup_rap():
-    # for files in kaputt
     #folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/hip_hop_complete_annotated/'
     folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/Korpus_Antikoerperchen_Reim_Annotiert/'
     poems = []
@@ -189,13 +189,13 @@ def beautifulsoup_rap():
 
 if __name__ == '__main__':
     #xml_to_string()
-    #beautifulsoup_for__kaputt()
+    beautifulsoup_for__kaputt()
     #beautifulsoup_rap()
-    verse= "ksadj alk  sdj alksd,j a:sd "
-    print(re.sub(r'[:,a]', '', verse))
-    print(re.sub(r'  ', '__', verse))
+    #verse= "ksadj alk  sdj alksd,j a:sd "
+    #print(re.sub(r'[:,a]', '', verse))
+    #print(re.sub(r'  ', '__', verse))
     
-    data= load_ndjson('/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/JSON_Data/dta_gold_kaputt_bs4.ndjson')
+    #data= load_ndjson('/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/JSON_Data/dta_gold_kaputt_bs4.ndjson')
     #data= load_ndjson('/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/JSON_Data/rap.ndjson')
     #data= load_ndjson('/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/JSON_Data/antik.ndjson')
     
