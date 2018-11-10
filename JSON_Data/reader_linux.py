@@ -11,10 +11,11 @@ from bs4 import BeautifulSoup
 
 # 37535 Zeilen
 def xml_to_string():
-    # TODO Leerzeilen beseitigen
-    #ALLE IN NICHT KAPUTT
-    #folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/'
-    folder = '/home/joerg/workspace/thesis/gute_Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/'
+    # beide Ordner benutzen!!!!!
+    # __kaputt_linux verursacht Fehler beim einlesen, Zeilen werden aber trotzdem erkannt
+    #folder = '/home/joerg/workspace/thesis/gute_Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/'
+    folder = '/home/joerg/workspace/thesis/gute_Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/__kaputt_linux'
+
 
     poem = []
     broken = 0
@@ -67,6 +68,7 @@ def xml_to_string():
     
 
 
+
         
 if __name__ == '__main__':
-    xml_to_string()
+    xml_to_string_tryout()

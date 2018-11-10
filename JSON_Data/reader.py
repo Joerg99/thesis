@@ -35,7 +35,9 @@ def load_ndjson(file):
 def xml_to_string():
     # TODO Leerzeilen beseitigen
     #ALLE IN NICHT KAPUTT
-    folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/'
+    #folder = '/Users/Jorg/Documents/workspace/workspace_oxygen/thesis/gute Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/'
+    folder = '/home/joerg/workspace/thesis/gute_Daten/german_tagged/Diachron_Sample_DTA_DTR_Rhyme_Annotated/'
+
     poem = []
     broken = 0
     for filename in os.listdir(folder):
@@ -73,7 +75,7 @@ def xml_to_string():
                                     continue
                                  
     print('kaputte Zeilen: ', broken)
-    with open("dta_gold_alle_etree.ndjson", 'w') as file:
+    with open("dta_gold_alle_etree_linuxtest.ndjson", 'w') as file:
         for line in poem:
             try:
                 file.write("%s\n" %  line)
@@ -188,8 +190,8 @@ def beautifulsoup_rap():
 #===============================================================================
 
 if __name__ == '__main__':
-    #xml_to_string()
-    beautifulsoup_for__kaputt()
+    xml_to_string()
+    #beautifulsoup_for__kaputt()
     #beautifulsoup_rap()
     #verse= "ksadj alk  sdj alksd,j a:sd "
     #print(re.sub(r'[:,a]', '', verse))
