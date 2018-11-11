@@ -25,6 +25,7 @@ def bs4_textgrid():
 #     folder = '/home/joerg/workspace/thesis/gute_Daten/german_tagged/Korpus_Antikoerperchen_Reim_Annotiert/'
     folder = '/home/joerg/workspace/thesis/Textgrid/'
     all_lines = []
+    whitespace = "\r\n\t"
     for file in os.listdir(folder):
         if file.endswith('.xml'):
             filename = folder+file
@@ -41,7 +42,8 @@ def bs4_textgrid():
                             for stanza in poem.find_all('lg'):
                                 stanza_no  += 1 
                                 for line in stanza.find_all('l'):
-                                    export_line = '{"s": '+ '"'+line.text+'", ' + '"stanza no": '+'"'+str(stanza_no)+'", '+'"title": '+ '"'+title[:15]+ '"'+'}'
+                                    export_line = '{"s": '+ '"'+line.text.lstrip().strip(whitespace)+'", ' + '"stanza no": '+'"'+str(stanza_no)+'", '+'"title": '+ '"'+title[:15].lstrip().strip(whitespace)+ '"'+'}'
+                                    #print(export_line)
                                     all_lines.append(export_line)
                         break
 
