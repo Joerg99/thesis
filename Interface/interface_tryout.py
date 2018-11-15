@@ -37,8 +37,6 @@ class Blah ():
         return n_grams
     
     def syllabificate(self, sequence):
-        
-            
         language = pyphen.Pyphen(lang='de_DE')
         print(language.inserted('Zeitschrift'))
     
@@ -51,3 +49,4 @@ b = Blah()
 
 selection = b.random_select(5)
 grams = b.make_n_grams(3, selection)
+b.syllabificate("Wahnsinn was für übertriebene Text.")
