@@ -39,7 +39,7 @@ def gutentag_reader():
                                 all_lines.append(export_line)
     
     print(len(all_lines))
-    with open('gutentag_de.ndjson', 'w') as file:
+    with open('gutentag_en.ndjson', 'w') as file:
         for line in all_lines:
             file.write("%s\n" % line)
 

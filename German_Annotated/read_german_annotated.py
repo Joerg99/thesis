@@ -26,11 +26,13 @@ def reader_german_annotated():
                 date = soup.find_all('date', type='publication')[1].text
                 if len(date) <4:
                     date = '0000'
-                for poem in soup.find_all('lg', type='poem'):
+                
+                poems = soup.find_all('lg', type='poem')
+                for poem in poems:
                     poem_no += 1
                     stanza_no = 0
                     rhyme_schema = ''
-                    for stanza in soup.find_all('lg', type='stanza'):
+                    for stanza in poem.find_all('lg', type='stanza'):
                         stanza_no+=1
                         rhyme_schema= stanza['rhyme']
                         stanza_temp = []
@@ -41,7 +43,7 @@ def reader_german_annotated():
                             for token in verse: 
                                 verse_str += token+' ' 
                             verse_str = re.sub(r'<[^>]*>', '', verse_str)
-                            #verse_str = re.sub(r'["\'-\\\/:,\']', '', verse_str)
+                            verse_str = re.sub(r'["\'\-\\\/:,\']', '', verse_str)
 #                             print(verse)
 
                             if len(verse_str) > 1:
