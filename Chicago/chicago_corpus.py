@@ -4,6 +4,7 @@ Created on Nov 14, 2018
 @author: joerg
 '''
 import os
+import re
 
 
 def chicago_corpus_to_ndjson():
@@ -122,11 +123,12 @@ def chicago_2():
     for filename in os.listdir(folder):
         if filename.endswith('.txt'):
             one_file = []
-            with open(folder+filename, 'r', encoding='latin-1') as file:
+            with open(folder+filename, 'rb') as file:
                 for line in file:
-                    line=bytes(line, 'utf-8').decode('ascii','ignore')
-                    line = ''.join([char for char in line if not char.isdigit()])
+                    line = line.strip().decode('utf-8', 'ignore').encode('utf-8')
+                    line = ''.join([char for char in line.decode('utf-8') if not char.isdigit()])
                     line = line.strip()
+                    line = ' '.join(line.split())
                     if len(line) > 1 and not line.startswith('AUTHOR') and not line.startswith('RHYME-POEM'):
                         one_file.append(line)
                 date = ''
@@ -168,7 +170,7 @@ def chicago_2():
                     except:
                         stanza = poem[rhyme_position[i]:len(poem)]
                         clustered_file.append(stanza)
-                        print(filename)
+                        #print(filename)
                         break
                 #print(rhyme_position)
                 for element in clustered_file:
@@ -191,7 +193,8 @@ def chicago_2():
                     if len(stanzas_in_poems[i][j][0]) == len(stanzas_in_poems[i][j])-1:
                         schema = stanzas_in_poems[i][j].pop(0)
                         for k in range(len(stanzas_in_poems[i][j])):
-                            export_line = '{"s": '+ '"'+ stanzas_in_poems[i][j][k].strip()+'", '+ '"rhyme": ' + '"' + schema[k] +'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + str(date)+'"' +'}'
+                            verse = re.sub(r'["\'\-\\\/:,\']','', stanzas_in_poems[i][j][k].strip())
+                            export_line = '{"s": '+ '"'+ verse +'", '+ '"rhyme": ' + '"' + schema[k] +'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + str(date)+'"' +'}'
                             all_lines.append(export_line)
                             
                     # Reimschema == aa*
@@ -199,7 +202,8 @@ def chicago_2():
                         schema = 'aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz'*5
                         del(stanzas_in_poems[i][j][0])
                         for k in range(len(stanzas_in_poems[i][j])):
-                            export_line = '{"s": '+ '"'+ stanzas_in_poems[i][j][k].strip()+'", '+ '"rhyme": ' + '"' + schema[k] +'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + str(date)+'"' +'}'
+                            verse = re.sub(r'["\'\-\\\/:,\']','', stanzas_in_poems[i][j][k].strip())
+                            export_line = '{"s": '+ '"'+ verse +'", '+ '"rhyme": ' + '"' + schema[k] +'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + str(date)+'"' +'}'
                             all_lines.append(export_line)
 
                     # Reimschema 'ab*'
@@ -207,14 +211,29 @@ def chicago_2():
                         schema = stanzas_in_poems[i][j][0][:-1]*100
                         del(stanzas_in_poems[i][j][0])
                         for k in range(len(stanzas_in_poems[i][j])):
-                            export_line = '{"s": '+ '"'+ stanzas_in_poems[i][j][k].strip()+'", '+ '"rhyme": ' + '"' + schema[k] +'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + str(date)+'"' +'}'
+                            verse = re.sub(r'["\'\-\\\/:,\']','', stanzas_in_poems[i][j][k].strip())
+                            export_line = '{"s": '+ '"'+ verse +'", '+ '"rhyme": ' + '"' + schema[k] +'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + str(date)+'"' +'}'
                             all_lines.append(export_line)
     
     with open('chicago.ndjson', 'w') as file:
         for line in all_lines:
             file.write('%s\n' % line)
 
-
+def reader():
+    folder= '/home/joerg/workspace/thesis/Chicago/english_tagged/english_raw/'
+    data = []
+    for filename in os.listdir(folder):
+        if filename.endswith('.txt'):
+            with open(folder+filename, 'rb') as file:
+                for line in file:
+                    if len(line) > 1:
+                        print(len(line))
+                        data.append(line.strip().decode('latin-1').encode('utf-8'))
+    return data        
+    
 if __name__ == '__main__':
 #     chicago_corpus_to_ndjson()
     chicago_2()
+#     data = reader()
+#     for element in data:
+#         print(element.decode('utf-8'))
