@@ -7,7 +7,7 @@ Created on Nov 15, 2018
 def deepspeare_to_ndjson():
     poem_no = 0
     all_lines = []
-    with open('/home/joerg/workspace/thesis/gute_Daten/english_untagged/Deepspeare_sonnet/sonnet_complete.txt', 'r') as file:
+    with open('/home/joerg/workspace/thesis/Deepspeare_Data/english_untagged/Deepspeare_sonnet/sonnet_complete.txt', 'r') as file:
         for line in file:
             poem_no += 1
             stanza_no = 1
@@ -20,7 +20,10 @@ def deepspeare_to_ndjson():
                         stanza_no += 1
                     #print(verse, poem_no, stanza_no)
                     verse = verse.replace('"', '')
-                    export_line = '{"s": '+ '"'+verse.strip()+'", ' + '"stanza_no": '+'"'+str(stanza_no)+'", '+'"poem_no": '+ '"'+str(poem_no)+ '"'+'}'
+#                     export_line = '{"s": '+ '"'+verse.strip()+'", ' + '"stanza_no": '+'"'+str(stanza_no)+'", '+'"poem_no": '+ '"'+str(poem_no)+ '"'+'}'
+                    export_line = '{"s": '+ '"'+verse.strip()+'", '+ '"rhyme": ' + '"' + '__'+'", ' + '"poem_no": ' + '"' + str(poem_no)+'", ' + '"stanza_no": '+ '"'+str(stanza_no)+ '", '+ '"released": ' + '"' + '0000'+'"' +'}'
+
+                    
                     all_lines.append(export_line)
                     verse=''
                 else:
