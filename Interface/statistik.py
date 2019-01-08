@@ -6,27 +6,29 @@ Created on Nov 17, 2018
 
 import ndjson
 from collections import Counter
+import re
+
 
 def load_data(filename):
-    with open(filename, 'r') as file:
+    with open(filename, 'rb') as file:
         data = ndjson.load(file)
     return data
 
+def kill_bad_sings():
+    lines = []
+    with open('/home/joerg/workspace/thesis/Chicago/chicago.ndjson', 'r', encoding='utf-8') as file:
+        for line in file:
+            if re.search(r'\\', line):
+                print(line)
+            
+            lines.append(line)
+        print(lines[9740])
+    with open('/home/joerg/workspace/thesis/Chicago/chicago_clean.ndjson','w') as file:
+        for line in lines:
+            file.write(line)
+
 
 if __name__ =='__main__':
-    print('ads')
-    c = Counter()
-#     d = load_data('/home/joerg/workspace/thesis/Gutentag/gutentag_de.ndjson')
-    d = load_data('/home/joerg/workspace/thesis/Textgrid/textgrid_l_in_lg_tags_verse_types_re.ndjson')
-    print(len(d))
-    l = []
-    for e in d:
-        l.append(e['poem_no'])
-    print(l[:23])
-    l = [int(element) for element in l]
-    s = set(l)
-    l = list(s)
-    l.sort()
-    print('len: ', len(l))
-    print(l[-10:])
-
+    print('x')
+#     kill_bad_sings()
+#     print(data[9228:9232])

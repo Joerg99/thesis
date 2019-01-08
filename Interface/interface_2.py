@@ -326,35 +326,48 @@ class Corpus:
             aylien_ratings.append(sent)
         wordlist_ratings = []
         data = pd.read_csv(sentiment_file, header=None, names=('key', 'rating', 'all_found_ratings', 'relative_rating', 'year'))
+        wordlist_rating_number = []
         for key in keys_random:
             rating = list(data[data.key == int(key)]['relative_rating'])[-1]
+            wordlist_rating_number.append(rating)
             if rating > 0.33:
                 rating = 'positive'
             elif rating < -0.33:
-                rating = -'negative'
+                rating = 'negative'
             else:
                 rating = 'neutral'
             wordlist_ratings.append(rating)
         counter_aylien  = Counter()
         counter_wordlist = Counter()
+         
+        with open('aylien_wordlist_comp_on_random_n.txt', 'w') as file:
+            for i in range(len(keys_random)):
+                if i == 0:
+                    file.write('key, aylien, wordlist, wordlist_number \n')
+                file.write('%s,  %s, %s, %s \n' %(keys_random[i], aylien_ratings[i], wordlist_ratings[i], wordlist_rating_number[i]))
+            
         
-        for i in range(len(wordlist_ratings)):
-            counter_aylien[aylien_ratings[i]] += 1
-            counter_wordlist[wordlist_ratings[i]] += 1
-        print('Aylien', counter_aylien)
-        print('Wordlist', counter_wordlist)
+        
+        
+        #useless because it just counts pos, neg and neutral but doesen connect it with poem id... 
+#         for i in range(len(wordlist_ratings)):
+#             counter_aylien[aylien_ratings[i]] += 1
+#             counter_wordlist[wordlist_ratings[i]] += 1
+#         print('Aylien', counter_aylien)
+#         print('Wordlist', counter_wordlist)
+        
 ###########
 # poems are stored in textgrid.data as a dictionary with poem_no as key and list of tuples as values
 # dictionary values: list of tuples. Tuple shape is like this: (verse, rhyme annotation, stanza number, release date, author)
 ###########
 if __name__ == '__main__':
     # Corpus laden
-    textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
-    textgrid.aylien_test_and_export_sentiment_ranking_on_random_n_poems('/home/joerg/workspace/thesis/Interface/sentiment/chicago_sentiment.txt', 5, 'en')
-    
+#     textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
+    #textgrid.aylien_test_and_export_sentiment_ranking_on_random_n_poems('/home/joerg/workspace/thesis/Interface/sentiment/chicago_sentiment.txt', 30, 'en')
+#     for line in textgrid.data['393']:
+#         print(line[0])
     
 #     textgrid.aylien_test_and_export_sentiment_ranking_on_top_n_poems('/home/joerg/workspace/thesis/Interface/sentiment/sentiment_textgrid.txt', 30, 'de')
-    
     
     
     
