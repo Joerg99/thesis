@@ -361,6 +361,7 @@ class Corpus:
 # dictionary values: list of tuples. Tuple shape is like this: (verse, rhyme annotation, stanza number, release date, author)
 ###########
 if __name__ == '__main__':
+    print('asd')
     # Corpus laden
 #     textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
     #textgrid.aylien_test_and_export_sentiment_ranking_on_random_n_poems('/home/joerg/workspace/thesis/Interface/sentiment/chicago_sentiment.txt', 30, 'en')
