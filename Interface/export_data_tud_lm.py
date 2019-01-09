@@ -151,32 +151,32 @@ def create_short_and_long_verses():
             if verse_len < 5:
                 pos_verses += 1
                 verse = ['sos_p']
-                token_in_verse = [string_replace_multiple(token.lower()+'_p') for token in tokenizer.tokenize(line[0]) if token.isalpha()]
+                token_in_verse = [string_replace_multiple(token+'_p') for token in tokenizer.tokenize(line[0]) if token.isalpha()]
                 verse.extend(token_in_verse)
                 
                 all_verses.extend(verse)
             elif verse_len >10:
                 neg_verses += 1
                 verse = ['sos_n']
-                token_in_verse = [string_replace_multiple(token.lower()+'_n') for token in tokenizer.tokenize(line[0]) if token.isalpha()]
+                token_in_verse = [string_replace_multiple(token+'_n') for token in tokenizer.tokenize(line[0]) if token.isalpha()]
                 verse.extend(token_in_verse)
                 all_verses.extend(verse)
     #export train
     with open('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/textgrid/train_tg.txt', 'w') as file:
-        for i in range(60000):
+        for i in range(30000):
             if all_verses[i+1] == 'sos_p' or all_verses[i+1] == 'sos_n':
-                file.write(str(i+1)+'\t'+all_verses[i]+'\t'+'<eos>'+'\n\n')
+                file.write(str(i+1)+'\t'+all_verses[i]+'\t'+'<eos>'+'\t1'+'\n\n')
             else:
                 file.write(str(i+1)+'\t'+all_verses[i]+'\t'+str(all_verses[i+1])+'\t1'+'\n')
        
     #export test
     with open('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/textgrid/test_tg.txt', 'w') as file:
-        for i in range(60000, 80000):
+        for i in range(30000, 40000):
             if all_verses[i+1] == 'sos_p' or all_verses[i+1] == 'sos_n':
-                file.write(str(i+1)+'\t'+all_verses[i]+'\t'+'<eos>'+'\n\n')
+                file.write(str(i+1)+'\t'+all_verses[i]+'\t'+'<eos>'+'\t1'+'\n\n')
             else:
                 file.write(str(i+1)+'\t'+all_verses[i]+'\t'+str(all_verses[i+1])+'\t1 '+'\n')
-
+    print('done')
 
     
 if __name__ == '__main__':
