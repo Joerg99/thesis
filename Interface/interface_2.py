@@ -244,47 +244,6 @@ class Corpus:
     
     
 
-    def alliteration_in_line(self, g2p_file, verse):
-#         g2p_lookup = {}
-#         with open(g2p_file, 'r') as file:
-#             for line in file:
-#                 temp = line.split(" ", 1)
-#                 g2p_lookup[temp[0]] = temp[1]
-        
-        verse = g2p_seq2seq.app.main([verse.lower()])
-        print(verse)
-#         tokenizer = RegexpTokenizer(r'\w+')
-#         verse = tokenizer.tokenize(verse.lower())
-        
-        # get all n-grams
-        def window(seq, n):
-            it = iter(seq)
-            result = tuple(islice(it, n))
-            if len(result) == n:
-                yield result
-            for element in it:
-                result = result[1:] + (element,)
-                yield result
-        
-#         verse = [g2p_lookup[token] for token in verse] #if token not in stopwords.words('english')]
-        
-        twograms = window(verse[0], 2)
-        threegrams = window(verse[0], 3)
-        alits_two = []
-        alits_three = []
-        for gram in twograms:
-            if gram[0][0] == gram[1][0]:
-                alits_two.append(gram)
-        for gram in threegrams:
-            if gram[0][0] == gram[1][0] == gram[2][0]:
-                alits_three.append(gram)        
-        temp = []
-        for twog in alits_two:
-            for threeg in alits_three:
-                if not set(twog).issubset(threeg):
-                    temp.append(twog)
-        alits_two = temp
-        print(alits_three, alits_two)
 
     #transform given poem-values to string and calls aylien for sentiment rating. returns sentiment
     def aylien_for_sentiment(self, poem, language):
@@ -302,20 +261,21 @@ class Corpus:
         print(len(data))
         most_pos = data.nlargest(top_bottom_n, 'relative_rating')['key'].tolist()
         most_neg = data.nsmallest(top_bottom_n, 'relative_rating')['key'].tolist()
-        aylien_rating_pos = []
-        aylien_rating_neg = []
-        for poem in most_pos:
-            sent = textgrid.aylien_for_sentiment(textgrid.data[str(poem)], language)
-            aylien_rating_pos.append(sent)#, 'label: pos')
-        for poem in most_neg:
-            sent = textgrid.aylien_for_sentiment(textgrid.data[str(poem)], language)
-            aylien_rating_neg.append(sent)#, 'label: neg')
-        aylien_rating_pos.extend(aylien_rating_neg)
-        most_pos.extend(most_neg)
-        with open('aylien_ratings_textgrid_top30_low30.txt', 'w') as file:
-            for i in range(len(aylien_rating_pos)):
-                file.write('%s , %s \n' %(most_pos[i], aylien_rating_pos[i]))
-        print('done')
+        print(most_pos, most_neg)
+#         aylien_rating_pos = []
+#         aylien_rating_neg = []
+#         for poem in most_pos:
+#             sent = textgrid.aylien_for_sentiment(textgrid.data[str(poem)], language)
+#             aylien_rating_pos.append(sent)#, 'label: pos')
+#         for poem in most_neg:
+#             sent = textgrid.aylien_for_sentiment(textgrid.data[str(poem)], language)
+#             aylien_rating_neg.append(sent)#, 'label: neg')
+#         aylien_rating_pos.extend(aylien_rating_neg)
+#         most_pos.extend(most_neg)
+#         with open('aylien_ratings_textgrid_top30_low30.txt', 'w') as file:
+#             for i in range(len(aylien_rating_pos)):
+#                 file.write('%s , %s \n' %(most_pos[i], aylien_rating_pos[i]))
+#         print('done')
 
     def aylien_test_and_export_sentiment_ranking_on_random_n_poems(self, sentiment_file, random_n, language):
         keys_random = list(self.data.keys())
@@ -349,13 +309,97 @@ class Corpus:
         
         
         
+    def alliteration_in_line(self, g2p_file, verse):
+#         g2p_lookup = {}
+#         with open(g2p_file, 'r') as file:
+#             for line in file:
+#                 temp = line.split(" ", 1)
+#                 g2p_lookup[temp[0]] = temp[1]
+        
+        def window(seq, n):
+            it = iter(seq)
+            result = tuple(islice(it, n))
+            if len(result) == n:
+                yield result
+            for element in it:
+                result = result[1:] + (element,)
+                yield result
+        
+        verse = g2p_seq2seq.app.main([verse.lower()])
+        print('verse: ', verse)
+#         verse = [g2p_lookup[token] for token in verse] #if token not in stopwords.words('english')]
+        
+        twograms = window(verse[0], 2)
+        threegrams = window(verse[0], 3)
+        alits_two = []
+        alits_three = []
+        for gram in twograms:
+            print(gram)
+            if gram[0][0] == gram[1][0]:
+                alits_two.append(gram)
+        for gram in threegrams:
+            if gram[0][0] == gram[1][0] == gram[2][0]:
+                alits_three.append(gram)        
+        temp = []
+        for twog in alits_two:
+            for threeg in alits_three:
+                if not set(twog).issubset(threeg):
+                    temp.append(twog)
+        alits_two = temp
+        print(alits_three, alits_two)
         #useless because it just counts pos, neg and neutral but doesen connect it with poem id... 
 #         for i in range(len(wordlist_ratings)):
 #             counter_aylien[aylien_ratings[i]] += 1
 #             counter_wordlist[wordlist_ratings[i]] += 1
 #         print('Aylien', counter_aylien)
 #         print('Wordlist', counter_wordlist)
+
+
+
+    def read_g2p_converted_file(self):
+        def window(seq, n):
+            it = iter(seq)
+            result = tuple(islice(it, n))
+            if len(result) == n:
+                yield result
+            for element in it:
+                result = result[1:] + (element,)
+                yield result
+                
+        data = pd.read_csv('/home/joerg/workspace/g2p_raw/g2p-seq2seq/deepspeare_aliteration_converted', sep=' ', usecols = (0,1), header=None)
+        p = data[1].tolist()
+        temp = []
+        all_verses = []
+        for token in p:
+            if type(token) is float:
+                all_verses.append(temp)
+                temp = []
+            else:
+                temp.append(token)
         
+        twograms = []
+        for verse in all_verses:
+            twograms.append(window(verse, 2))
+        threegrams  = []
+        for verse in all_verses:
+            threegrams.append(window(verse, 3))
+            
+        alits_two = []
+        for gram in twograms:
+            for g in gram:
+                if g[0] == g[1]:
+                    alits_two.append(g)
+        alits_three = []
+        for gram in threegrams:
+            for g in gram:
+                if g[0] == g[1] == g[2]:
+                    alits_three.append(g)
+        
+        print(len(alits_two), len(alits_three),len(all_verses))
+        #print(alits_two, alits_three)
+    
+
+
 ###########
 # poems are stored in textgrid.data as a dictionary with poem_no as key and list of tuples as values
 # dictionary values: list of tuples. Tuple shape is like this: (verse, rhyme annotation, stanza number, release date, author)
@@ -363,18 +407,8 @@ class Corpus:
 if __name__ == '__main__':
     print('asd')
     # Corpus laden
-#     textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
-    #textgrid.aylien_test_and_export_sentiment_ranking_on_random_n_poems('/home/joerg/workspace/thesis/Interface/sentiment/chicago_sentiment.txt', 30, 'en')
-#     for line in textgrid.data['393']:
-#         print(line[0])
-    
-#     textgrid.aylien_test_and_export_sentiment_ranking_on_top_n_poems('/home/joerg/workspace/thesis/Interface/sentiment/sentiment_textgrid.txt', 30, 'de')
-    
-    
-    
-#     textgrid.make_sentiment_list('/home/joerg/workspace/thesis/Sentiment/en/opinion-lexicon-English/positive-words.txt', '/home/joerg/workspace/thesis/Sentiment/en/opinion-lexicon-English/negative-words.txt', 'gutentag_sentiment.txt')
-#     textgrid.alliteration_in_line('/home/joerg/workspace/thesis/Interface/g2p/g2p_chicago.txt', "My Muse made enfranchised from forgetfulness")
-#     textgrid.aylien_for_sentiment(textgrid.data['550'])
-#     textgrid.aylien_for_sentiment(textgrid.data['804'])
-     
+    textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
+#     textgrid.read_g2p_converted_file()
+#     textgrid.alliteration_in_line('/home/joerg/workspace/thesis/Interface/g2p/g2p_chicago.txt', "My Muse made enfranchised enfranchised")
+
     
