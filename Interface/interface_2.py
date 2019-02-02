@@ -229,6 +229,17 @@ class Corpus:
                 file.write('%s ,%s, %s, %s, %s\n' %(poem[0], poem[1], poem[2], poem[3], poem[4]))
         print('done')
         
+    def get_sentiment_top_bottom_n_poems(self, sentiment_file, top_bottom_n, language):
+        data = pd.read_csv(sentiment_file, header=None, names=('key', 'rating', 'all_found_ratings', 'relative_rating', 'year'))
+        data = data[data.all_found_ratings > 20]
+        print(len(data))
+        most_pos = data.nlargest(top_bottom_n, 'relative_rating')['key'].tolist()
+        most_neg = data.nsmallest(top_bottom_n, 'relative_rating')['key'].tolist()
+        print(most_pos, most_neg)
+
+        
+        
+        
     # makes a plain text file with unique words. This file can be used for g2p conversion with g2p-transformer
     def export_data_for_g2p(self):
         vocabulary = set()
@@ -308,7 +319,7 @@ class Corpus:
             
         
         
-        
+    # this method can only be used for one string. otherwise g2p tool crashes
     def alliteration_in_line(self, g2p_file, verse):
 #         g2p_lookup = {}
 #         with open(g2p_file, 'r') as file:
@@ -355,8 +366,9 @@ class Corpus:
 #         print('Wordlist', counter_wordlist)
 
 
-
-    def read_g2p_converted_file(self):
+    #read in file that has been translated to phonemes in CONLL shape: word W OH RD 
+    #counts bi- and trigram alliterations
+    def read_g2p_converted_file_check_for_aliterations(self):
         def window(seq, n):
             it = iter(seq)
             result = tuple(islice(it, n))
@@ -366,12 +378,13 @@ class Corpus:
                 result = result[1:] + (element,)
                 yield result
                 
-        data = pd.read_csv('/home/joerg/workspace/g2p_raw/g2p-seq2seq/deepspeare_aliteration_converted', sep=' ', usecols = (0,1), header=None)
+        data = pd.read_csv('/home/joerg/workspace/g2p_raw/g2p-seq2seq/chicago_aliteration_converted', sep=' ', usecols = (0,1), header=None)
+        #data = pd.read_csv('/home/joerg/workspace/g2p_raw/g2p-seq2seq/deepspeare_aliteration_converted', sep=' ', usecols = (0,1), header=None)
         p = data[1].tolist()
         temp = []
         all_verses = []
         for token in p:
-            if type(token) is float:
+            if type(token) is float: #float is NaN and this is marks a new verse in the data
                 all_verses.append(temp)
                 temp = []
             else:
@@ -395,7 +408,7 @@ class Corpus:
                 if g[0] == g[1] == g[2]:
                     alits_three.append(g)
         
-        print(len(alits_two), len(alits_three),len(all_verses))
+        print('aliteration bigrams ', len(alits_two), ' aliterations trigram ',len(alits_three), ' Anzahl Verse ', len(all_verses))
         #print(alits_two, alits_three)
     
 
@@ -404,11 +417,25 @@ class Corpus:
 # poems are stored in textgrid.data as a dictionary with poem_no as key and list of tuples as values
 # dictionary values: list of tuples. Tuple shape is like this: (verse, rhyme annotation, stanza number, release date, author)
 ###########
+
 if __name__ == '__main__':
-    print('asd')
-    # Corpus laden
-    textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
-#     textgrid.read_g2p_converted_file()
+    
+#     textgrid = Corpus('/home/joerg/workspace/thesis/Textgrid/textgrid_thomas.ndjson')
+#     textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
+    ds = Corpus('/home/joerg/workspace/thesis/Deepspeare_Data/deepspeare_data.ndjson')
+#     ds.get_sentiment_top_bottom_n_poems('/home/joerg/workspace/thesis/Interface/sentiment_with_averages/sentiment_deepspeare.txt', 20, 'en')
+    ds_most_pos = [3216, 1845, 1023, 2485, 1416, 2342, 3046, 746, 2983, 3245, 2530, 2928, 846, 2330, 720, 2006, 2130, 81, 2961, 1387]
+    ds_most_neg = [214, 1867, 2835, 2932, 1744, 787, 163, 240, 390, 2327, 1844, 3202, 353, 2676, 3047, 2419, 2198, 820, 426, 312]
+    for poem in ds_most_neg:
+        poem_string = ''
+        for values in ds.data[str(poem)]:
+            poem_string+=values[0]
+        print(poem_string)
+
+#     textgrid.make_sentiment_list('/home/joerg/workspace/thesis/Sentiment/de/GermanPolarityClues-2012/GermanPolarityClues-Positive-21042012.tsv', '/home/joerg/workspace/thesis/Sentiment/de/GermanPolarityClues-2012/GermanPolarityClues-Negative-21042012.tsv', 'textgrid_thomas_sentiment')
+        
+#     textgrid = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
+#     textgrid.read_g2p_converted_file_check_for_aliterations()
 #     textgrid.alliteration_in_line('/home/joerg/workspace/thesis/Interface/g2p/g2p_chicago.txt', "My Muse made enfranchised enfranchised")
 
     

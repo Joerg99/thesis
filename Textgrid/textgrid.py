@@ -7,7 +7,7 @@ import os
 import re
 import xml.etree.ElementTree as etree
 from bs4 import BeautifulSoup
-
+import json
 
 
 
@@ -54,8 +54,25 @@ def bs4_textgrid():
         for line in all_lines:
             file.write("%s\n" %  line)
                     
+                    
+def thomas_textgrid_to_ndjson():
+    all_verses = []
+    with open('/home/joerg/Downloads/inoutPoetry/textgrid/textgrid.json') as file:
+        data = json.load(file)
+        for k, v in data.items():
+            for verse in v['lines']:
+                verse = re.sub(r'["\'\-\\\/:,\']', '', verse)
+                author = v['author'].split(',')[0]
+                export_line = '{"s": '+ '"'+verse+'", '+ '"rhyme": ' + '"' + '__' + '", ' + '"poem_no": ' + '"' + k+'", ' + '"stanza_no": ' + '"' + '__' +'", ' + '"author": '+ '"'+ author + '", '+ '"released": ' + '"' + str(v['year'])+'"' +'}'
+                all_verses.append(export_line)
+    with open("textgrid_thomas.ndjson", 'w') as file:
+        for line in all_verses:
+            file.write("%s\n" %  line)
+            
+            
 if __name__ == '__main__':
-    bs4_textgrid()
+    thomas_textgrid_to_ndjson()
+#     bs4_textgrid()
 #     text = "Wow was geht."
 #     text = re.sub(r'["\'\-\\\/:,\']', '', text)
 #     print(text)

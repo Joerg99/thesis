@@ -6,6 +6,7 @@ Created on Nov 11, 2018
 import os
 import xml.etree.ElementTree as etree
 from bs4 import BeautifulSoup
+import json
 
 def read_textgrid():
     folder = '/home/joerg/workspace/thesis/Textgrid/'
@@ -52,7 +53,17 @@ def bs4_textgrid():
         for line in all_lines:
             file.write("%s\n" %  line)
                     
+
+
+def thomas_textgrid_to_ndjson():
+    with open('/home/joerg/Downloads/inoutPoetry/textgrid/textgrid.json') as file:
+        data = json.load(file)
+        for k, v in data.items():
+            print(v['year'])
+
+
 if __name__ == '__main__':
+    thomas_textgrid_to_ndjson()
 #     read_textgrid()
-    bs4_textgrid()
+#     bs4_textgrid()
     
