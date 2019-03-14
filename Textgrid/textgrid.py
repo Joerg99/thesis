@@ -59,16 +59,27 @@ def thomas_textgrid_to_ndjson():
     all_verses = []
     with open('/home/joerg/Downloads/inoutPoetry/textgrid/textgrid.json') as file:
         data = json.load(file)
+
         for k, v in data.items():
+            first_verse = v['lines'][0]
+            bad = 0
             for verse in v['lines']:
-                verse = re.sub(r'["\'\-\\\/:,\']', '', verse)
-                author = v['author'].split(',')[0]
-                export_line = '{"s": '+ '"'+verse+'", '+ '"rhyme": ' + '"' + '__' + '", ' + '"poem_no": ' + '"' + k+'", ' + '"stanza_no": ' + '"' + '__' +'", ' + '"author": '+ '"'+ author + '", '+ '"released": ' + '"' + str(v['year'])+'"' +'}'
-                all_verses.append(export_line)
-    with open("textgrid_thomas.ndjson", 'w') as file:
+                if verse == first_verse:
+                    bad += 1
+                if bad != 2:
+                    verse = re.sub(r'["\'\-\\\/:,\']', '', verse)
+                    author = v['author'].split(',')[0]
+                    export_line = '{"s": '+ '"'+verse+'", '+ '"rhyme": ' + '"' + '__' + '", ' + '"poem_no": ' + '"' + k+'", ' + '"stanza_no": ' + '"' + '__' +'", ' + '"author": '+ '"'+ author + '", '+ '"released": ' + '"' + str(v['year'])+'"' +'}'
+                    all_verses.append(export_line)
+                else:
+                    break
+    #print(len(all_verses))
+    with open("textgrid_thomas_correct_lines.ndjson", 'w') as file:
+        i = 0
         for line in all_verses:
+            i+= 1
             file.write("%s\n" %  line)
-            
+    print(i)
             
 if __name__ == '__main__':
     thomas_textgrid_to_ndjson()
