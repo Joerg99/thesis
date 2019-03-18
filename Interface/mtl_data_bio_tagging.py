@@ -52,7 +52,7 @@ def make_bio_tagged_data():
 
 
 def export_conll_file_for_rhyme_evaluation(number_of_quatrains_per_file):
-    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/test.txt', delimiter='\t' , usecols =(0,1,2,3), header=None, skip_blank_lines= False)
+    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/train.txt', delimiter='\t' , usecols =(0,1,2,3), header=None, skip_blank_lines= False)
     quatrains_export= []
     quatrain = ''
     for i in range(len(data)):
@@ -66,7 +66,7 @@ def export_conll_file_for_rhyme_evaluation(number_of_quatrains_per_file):
     quatrains_chunked = [quatrains_export[x:x+number_of_quatrains_per_file] for x in range(0, len(quatrains_export), number_of_quatrains_per_file)]
     
     for i in range(len(quatrains_chunked)):
-        with open('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/evaluation_files/chicago/mtl/'+str(i)+'_quatrains_test_', 'w') as file:
+        with open('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/evaluation_files/chicago/mtl/'+str(i)+'_quatrains_train_all', 'w') as file:
             for line in quatrains_chunked[i]:
                 file.write('%s<eos>\n' %line)
             
@@ -78,19 +78,21 @@ def export_conll_file_for_rhyme_evaluation(number_of_quatrains_per_file):
 def add_rhyme_tags_to_bio_data():
     
     # load training data file
-    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/train.txt', delimiter='\t' , usecols =(0,1,2,3,4), header=None, skip_blank_lines= False)
+    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/test.txt', delimiter='\t' , usecols =(0,1,2,3,4), header=None, skip_blank_lines= False)
     
     # load rhyming word pairs
-    mypath = '/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/evaluation_files/chicago/mtl/train'
+    mypath = '/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/evaluation_files/chicago/mtl/test'
     files_to_evaluate = [join(mypath,file) for file in listdir(mypath) if isfile(join(mypath, file))]
     files_to_evaluate = sorted(files_to_evaluate)
-      
+    
+    print(files_to_evaluate)
+    
     all_rhyme_pairs_joined = []    
     for f in files_to_evaluate:
         with open(f, 'rb') as file:
             rhyme_pairs = pickle.load(file)
         all_rhyme_pairs_joined.extend(rhyme_pairs)
-    
+    print(len(all_rhyme_pairs_joined))
     
     begin_of_quatrains = []
     for i in range(len(data)):
@@ -98,10 +100,11 @@ def add_rhyme_tags_to_bio_data():
             begin_of_quatrains.append(i)
     begin_of_quatrains.append(len(data))
     
-    for quatrain in all_rhyme_pairs_joined[:30]:
-        print(quatrain)
+#     for quatrain in all_rhyme_pairs_joined[:30]:
+#         print(quatrain)
     data[5] = ''
 
+    # 6 ist erst nur Helfer
     data[6] = np.nan
     verse_marker = 1
     for i in range(len(data)):
@@ -113,7 +116,7 @@ def add_rhyme_tags_to_bio_data():
         else:
             data.iat[i,6] = verse_marker
     
-    for i in range(len(rhyme_pairs)):               # for each quatrain
+    for i in range(len(all_rhyme_pairs_joined)):               # for each quatrain
         start_range = begin_of_quatrains[i]      
         end_range = begin_of_quatrains[i+1]      
          
@@ -139,59 +142,69 @@ def add_rhyme_tags_to_bio_data():
         if data.iat[i,5] == '':
             if data.iat[i,0] == data.iat[i,0]:
                 data.iat[i,5] = 0
-            
+    
     data[6] = data[5]
-
-#     data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/train_rhyme_tagged.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
-    print(data)
-
-
-
-def add_start_tags_to_already_tagged_data():
-    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged.txt', delimiter='\t' , usecols =(0,1,2,3,4,5,6), header=None, skip_blank_lines= False)
+    data[5] = data[5].shift(1)
+    data[3] = data[3].shift(1)
     
     for i in range(len(data)):
-        if data.iat[i,1] =='sos':
+        if data.iat[i,1] == 'sos':
             data.iat[i,3] = 'start'
-            data.iat[i,4] = 'start'
-            data.iat[i,5] == 'start'
-            data.iat[i,6] = 'start'
-            
-    print(data)
-
-    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
-
-
-
-def shift_mtl_side_info_to_input_and_label():
-    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/train_rhyme_tagged.txt', delimiter='\t' , usecols =(0,1,2,3,4,5,6), header=None, skip_blank_lines= False)
-    data[3] = data[3].shift(1)
-    for i in range(len(data)):
-        if data.iat[i,5] == 'start':
-            data.iat[i,4] = 'O'
-            data.iat[i,3] = 'start'
-    for i in range(len(data)-1):
-        if data.iat[i,3] =='start':
-            data.iat[i+1,3] = data.iat[i,4]
-
-    data[5] = data[5].shift(1)
-    for i in range(len(data)):
-        if data.iat[i,3] == 'start':
-            data.iat[i,6] = '0'
             data.iat[i,5] = 'start'
-    for i in range(len(data)-1):
-        if data.iat[i,5] =='start':
-            data.iat[i+1,5] = data.iat[i,6]
-    for i in range(len(data)):
-        if data.iat[i,0] != data.iat[i,0]:
-            data.iat[i,3] = np.nan
-            data.iat[i,4] = np.nan
-            data.iat[i,6] = np.nan
-            data.iat[i,5] = np.nan
-    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/train_rhyme_tagged_shift.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
+    print(data)
+    
+    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/test_rhyme_tagged_shift.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
+
+
+
+# def add_start_tags_to_already_tagged_data():
+#     data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged.txt', delimiter='\t' , usecols =(0,1,2,3,4,5,6), header=None, skip_blank_lines= False)
+#     
+#     for i in range(len(data)):
+#         if data.iat[i,1] =='sos':
+#             data.iat[i,3] = 'start'
+#             data.iat[i,4] = 'start'
+#             data.iat[i,5] == 'start'
+#             data.iat[i,6] = 'start'
+#         if data.iat[i,0] != data.iat[i,0]:
+#             data.iat[i,3] = np.nan
+#             data.iat[i,5] = np.nan
+#     print(data)
+#     data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/test_rhyme_tagged_shift.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
+
+
+
+
+# def shift_mtl_side_info_to_input_and_label():
+#     data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged.txt', delimiter='\t' , usecols =(0,1,2,3,4,5,6), header=None, skip_blank_lines= False)
+#     data[3] = data[3].shift(1)
+#     for i in range(len(data)):
+#         if data.iat[i,5] == 'start':
+#             data.iat[i,4] = 'O'
+#             data.iat[i,3] = 'start'
+#     for i in range(len(data)-1):
+#         if data.iat[i,3] =='start':
+#             data.iat[i+1,3] = data.iat[i,4]
+# 
+#     data[5] = data[5].shift(1)
+#     for i in range(len(data)):
+#         if data.iat[i,3] == 'start':
+#             data.iat[i,6] = '0'
+#             data.iat[i,5] = 'start'
+#     for i in range(len(data)-1):
+#         if data.iat[i,5] =='start':
+#             data.iat[i+1,5] = data.iat[i,6]
+#     for i in range(len(data)):
+#         if data.iat[i,0] != data.iat[i,0]:
+#             data.iat[i,3] = np.nan
+#             data.iat[i,4] = np.nan
+#             data.iat[i,6] = np.nan
+#             data.iat[i,5] = np.nan
+#     data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged_shift.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
 
 def add_end_rhyme_tags():
-    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged_shift.txt', delimiter='\t' , usecols =(0,1,2,3,4,5,6), header=None, skip_blank_lines= False)
+    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/test_rhyme_tagged_shift.txt', delimiter='\t' , usecols =(0,1,2,3,4,5,6), header=None, skip_blank_lines= False)
+    print(data[30:80])
     
     verse_end_words = []
     all_verse_end_words = []
@@ -250,21 +263,57 @@ def add_end_rhyme_tags():
                 index_3 = -1
                 index_4 = -3
         
+        if index_1 == 0:
+            if q[1][0][-1:] == q[2][0][-1:]:
+                last_two = True
+                index_1 = 3
+                index_2 = 1
+                index_3 = -1
+                index_4 = -3
+            elif q[1][0][-1:] == q[3][0][-1:]:
+                last_two = True
+                index_1 = 2
+                index_2 = 2
+                index_3 = -2
+                index_4 = -2
+
+        if index_1 == 0:
+            if q[2][0][-1:] == q[3][0][-1:]:
+                last_two = True
+                index_1 = 1
+                index_2 = -1
+                index_3 = 1
+                index_4 = -1
+        
+        
         data.iat[q[0][1],  5  ] = 'O'+str(index_1) if str(index_1).startswith('-') else 'O+'+str(index_1)
         data.iat[q[1][1],  5  ] = 'O'+str(index_2) if str(index_2).startswith('-') else 'O+'+str(index_2)
         data.iat[q[2][1],  5  ] = 'O'+str(index_3) if str(index_3).startswith('-') else 'O+'+str(index_3)
         data.iat[q[3][1],  5  ] = 'O'+str(index_4) if str(index_4).startswith('-') else 'O+'+str(index_4)
+    
+    data[6] = data[5].shift(-1)
+    for i in range(len(data)):
+        if data.iat[i,6] != data.iat[i,6]:
+            data.iat[i,6] = 0
+        if data.iat[i,6] == 'start':
+            data.iat[i,6] = np.nan
+        if data.iat[i,0] != data.iat[i,0]:
+            data.iat[i,3] = np.nan
+            data.iat[i,5] = np.nan
         
     print(data[30:80])
-    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/dev_rhyme_tagged_shift.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
+    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_bio/test_rhyme_tagged_shift_2.txt', sep='\t', columns=(0,1,2,3,4,5,6), header=None, index= False)
 
 if __name__ == '__main__':
     print('asda')
 #     make_bio_tagged_data()
-#     export_conll_file_for_rhyme_evaluation(500)
-#     add_rhyme_tags_to_bio_data()
+    
+#     export_conll_file_for_rhyme_evaluation(20000)
+    add_rhyme_tags_to_bio_data()
+    add_end_rhyme_tags()
+    
 #     add_start_tags_to_already_tagged_data()
 #     shift_mtl_side_info_to_input_and_label()
-    add_end_rhyme_tags()
+
     print('done')
     

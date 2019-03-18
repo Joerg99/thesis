@@ -758,11 +758,17 @@ class Corpus:
 
 if __name__ == '__main__':
     
+    unique_token = set()
+#     corpus = Corpus('/home/joerg/workspace/thesis/German_Annotated/dta_annotated.ndjson')
+#     corpus = Corpus('/home/joerg/workspace/thesis/Gutentag/gutentag_en_all_lines_from_single_file_complete.ndjson')
+#     corpus = Corpus('/home/joerg/workspace/thesis/Textgrid/textgrid_thomas_correct_lines.ndjson')
+#     corpus = Corpus('/home/joerg/workspace/thesis/Chicago/chicago.ndjson')
     corpus = Corpus('/home/joerg/workspace/thesis/Deepspeare_Data/deepspeare_data.ndjson')
     for x in corpus.data.values():
         for verse in x:
-            print(verse[0])
-
+            for word in verse[0].split(' '):
+                unique_token.add(word)
+    print(len(unique_token))
 
 #     corpus.filter_by_year(1700, 2000)
 #     corpus.filter_by_no_of_lines(8, 100)

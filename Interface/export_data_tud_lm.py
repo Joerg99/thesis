@@ -904,7 +904,7 @@ def training_data_sentiment_analysis():
 # divide "relative level" by maximum "relative level" of the whole corpus
 
 def transform_side_info_relative_to_quatrain_length():
-    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/deepspeare/stanza_w_alits_density_norm/test_stanza_alit_density_norm.txt', delimiter='\t', usecols=(0,1,2, 3, 4, 5, 6) ,header=None, skip_blank_lines= False)
+    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_w_alits_density_norm/dev_stanza_alit_density_norm.txt', delimiter='\t', usecols=(0,1,2, 3, 4, 5, 6) ,header=None, skip_blank_lines= False)
     #### ## ## # #  each number is length of a quatrain
     len_of_quatrains = []
     q_len = 0
@@ -930,21 +930,27 @@ def transform_side_info_relative_to_quatrain_length():
         ##### ## ## # #  column 8 side info relative to length
         ##### ## ## # #  column 3 for allit, column 4 for rhyme
     
-#     corpus_max = 0.47058823529411764
     corpus_max = 0.325
+    corpus_max = 0.6052631578947368
+
     for i in range(len(data)):
         if data.iat[i,0] == data.iat[i,0]:
-            data.iat[i,8] = float(data.iat[i,3]) / float(data.iat[i, 7])
+            data.iat[i,8] = float(data.iat[i,4]) / float(data.iat[i, 7]) ### in [8] is the relative value
             
             if data.iat[i,8] / corpus_max > 1:
                 data.iat[i,9] = 1
             else:
-                data.iat[i,9] = data.iat[i,8] / corpus_max 
+                data.iat[i,9] = data.iat[i,8] / corpus_max     #### in [9] is the normalized value
+#     print('maaax', data[8].max())
                 
-    
-    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/deepspeare/stanza_side_info_relative_to_quatrain_length/test.txt', sep='\t', columns=(0,1,2,9), header=None, index= False)
+#     plt.hist(data[9].tolist(), 10)
+#     plt.show()
+    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_side_info_relative_to_quatrain_length_only_rhyme/dev_relative_rhyme.txt', sep='\t', columns=(0,1,2,9), header=None, index= False)
 
     print(data)
+    
+    
+    
     
 def reduce_words_for_g2p_translation():
     words = []
@@ -958,9 +964,25 @@ def reduce_words_for_g2p_translation():
     with open('/home/joerg/workspace/g2p_raw/g2p-seq2seq/gutentag_20k_aliteration_kurz.txt', 'w') as file:
         for word in words:
             file.write(word)
+
+
+def log_transform_side_info():
+    data = pd.read_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/stanza_w_alits_density/_stanza_alit_density.txt', delimiter='\t' ,header=None, skip_blank_lines= False)
+    for i in range(len(data)):
+        data.iat[i,4] += 1
     
+    data[5] = np.log(data[4])
+    m = data[5].max()
+    print(m)
+    
+    for i in range(len(data)):
+        data.iat[i,5] = data.iat[i,5] / m
+    print(data)
+    data.to_csv('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/data/chicago/allit_log/train.txt', sep='\t', columns=(0,1,2,5), header=None, index= False)
+
 if __name__ == '__main__':
     print('asdads')
+    log_transform_side_info()
 #     export_data_for_g2p_lookup()
 #     reduce_words_for_g2p_translation()
 #     read_training_data_and_tag_alliteration()
@@ -969,7 +991,7 @@ if __name__ == '__main__':
 #     read_training_data_and_add_sentiment()
 
 #     make_four_line_stanza()
-    plot_losses('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/models/gutentag/unconditioned/plot_50_gutentag', 'Gutenberg Corpus, Loss Curves')
+#     plot_losses('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/models/gutentag/unconditioned/plot_50_gutentag', 'Gutenberg Corpus, Loss Curves')
 #     transform_side_info_relative_to_quatrain_length()
     
     
@@ -997,7 +1019,7 @@ if __name__ == '__main__':
 
 #     create_single_verses()
 #     make_four_line_stanza()
-#     plot_losses('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/models/test/plot_73_textgrid', '93000 verses, model: 256, 0.2 dropout ')
+#     plot_losses('/home/joerg/workspace/emnlp2017-bilstm-cnn-crf/models/chicago/real_value_relative_rhyme/plot_50_chicago', '93000 verses, model: 256, 0.2 dropout ')
 #     create_short_and_long_verses_concat_information()
 
 
